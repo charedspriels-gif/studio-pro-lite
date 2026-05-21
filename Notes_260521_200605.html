@@ -1,0 +1,64 @@
+cat << 'EOF' > index.html
+<!DOCTYPE html>
+<html>
+<head>
+<title>Ultimate Studio Pro</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-white p-4">
+<div class="max-w-md mx-auto space-y-4">
+<h1 class="text-xl font-black text-emerald-400 text-center">STUDIO PRO</h1>
+
+<!-- Volume Booster -->
+<div class="bg-slate-900 p-4 rounded-xl border border-slate-700">
+<h2 class="text-xs font-bold text-yellow-400 mb-2">ULTRA VOLUME MAX: UNLIMITED%</h2>
+<input type="number" id="volInput" value="100" class="w-full bg-black p-2 rounded mb-2 border border-slate-600">
+<button onclick="boostVolume()" class="w-full bg-yellow-600 text-black font-bold p-2 rounded">Apply Boost</button>
+</div>
+
+<!-- Video & Media Player -->
+<div class="bg-slate-900 p-4 rounded-xl border border-slate-700">
+<label class="block text-xs font-bold mb-1">Choose Video (MP4/Mp4Box):</label>
+<input type="file" id="vidInput" accept="video/mp4" class="w-full text-xs mb-3">
+<label class="block text-xs font-bold mb-1">Choose Media (MP3/Audio):</label>
+<input type="file" id="audInput" accept="audio/*" class="w-full text-xs mb-3">
+<video id="player" controls class="w-full rounded bg-black"></video>
+</div>
+
+<!-- Camera -->
+<div class="bg-slate-900 p-4 rounded-xl border border-slate-700">
+<button onclick="startCam()" class="w-full bg-blue-600 p-2 rounded mb-2">Open Camera</button>
+<video id="camFeed" autoplay playsinline class="w-full rounded bg-black hidden"></video>
+</div>
+</div>
+
+<script>
+let audioCtx, gainNode, source;
+const player = document.getElementById('player');
+
+// Volume Logic
+function boostVolume() {
+if(!audioCtx) {
+audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+gainNode = audioCtx.createGain();
+source = audioCtx.createMediaElementSource(player);
+source.connect(gainNode).connect(audioCtx.destination);
+}
+gainNode.gain.value = document.getElementById('volInput').value / 100;
+}
+
+// Media Loaders
+document.getElementById('vidInput').onchange = (e) => { player.src = URL.createObjectURL(e.target.files[0]); player.play(); };
+document.getElementById('audInput').onchange = (e) => { player.src = URL.createObjectURL(e.target.files[0]); player.play(); };
+
+// Camera
+async function startCam() {
+const stream = await navigator.mediaDevices.getUserMedia({video: true});
+const cam = document.getElementById('camFeed');
+cam.srcObject = stream;
+cam.classList.remove('hidden');
+}
+</script>
+</body>
+</html>
+EOF
